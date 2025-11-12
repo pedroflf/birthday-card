@@ -11,6 +11,13 @@
 
   <style>
     /* Basic reset */
+    .lock { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 6px; }
+.code {
+  border: 1px solid #ddd; border-radius: 999px; padding: 12px 16px; font-size: 16px;
+  outline: none; transition: box-shadow .2s ease, border-color .2s ease;
+}
+.code:focus { box-shadow: 0 0 0 3px rgba(0,0,0,0.06); border-color: #bbb; }
+
     * { box-sizing: border-box; }
     html, body { height: 100%; margin: 0; }
     body {
@@ -153,7 +160,11 @@
         </svg>
       </div>
 
-      <button id="surprise" class="btn">Tap me for a surprise ✨</button>
+      <div class="lock">
+  <input id="code" class="code" placeholder="Type our secret word…" autocomplete="off" />
+  <button id="unlock" class="btn">Unlock ✨</button>
+</div>
+
 
       <div id="secret" class="secret">
         <p>Every day with you is my favorite adventure. When we look at the moon, we’re under the same sky—“something.” 🌙</p>
@@ -220,13 +231,29 @@
       }
       draw();
 
-      // Surprise button: burst + reveal message + optional music
-      const btn = document.getElementById('surprise');
-      const secret = document.getElementById('secret');
-      btn.addEventListener('click', () => {
-        burst();
-        secret.classList.add('show');
-        btn.style.display = 'none';
+     
+
+        const input = document.getElementById('code');
+const unlock = document.getElementById('unlock');
+const SECRET = 'something'; // <-- change this if you want
+
+function vibrate(ms=30){ if (navigator.vibrate) navigator.vibrate(ms); }
+
+unlock.addEventListener('click', () => {
+  if ((input.value || '').trim().toLowerCase() === SECRET) {
+    vibrate(20);
+    burst();
+    secret.classList.add('show');
+    document.querySelector('.lock').style.display = 'none';
+    // Optional music:
+    // const audio = document.getElementById('bgm'); if (audio) audio.play().catch(()=>{});
+  } else {
+    vibrate([20,40,20]);
+    input.value = '';
+    input.placeholder = 'Try again ♥';
+  }
+});
+
 
         // Optional music
         // const audio = document.getElementById('bgm');
