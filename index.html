@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Happy Birthday, Bella! 🎂✨</title>
+
+  <!-- Make it feel like an app on iPhone -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <style>
+    /* Basic reset */
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: -apple-system, ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 50% -20%, #ffeaf6, #fff), #fff;
+      color: #222;
+      overflow: hidden;
+    }
+
+    /* Fullscreen layout */
+    .wrap {
+      position: relative;
+      height: 100%;
+      width: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    /* Card */
+    .card {
+      width: min(92vw, 620px);
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      text-align: center;
+      transform: translateY(10px);
+      opacity: 0;
+      animation: rise 900ms ease-out forwards 300ms;
+    }
+
+    @keyframes rise {
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    h1 {
+      font-size: clamp(28px, 5vw, 40px);
+      margin: 0 0 8px 0;
+    }
+
+    .subtitle {
+      font-size: clamp(16px, 3.6vw, 18px);
+      opacity: 0.8;
+      margin-bottom: 18px;
+    }
+
+    .hero {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ffd1e3, #ffecc7);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      margin: 10px 0 18px;
+      position: relative;
+    }
+
+    .hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none; /* Replace with your photo and set to block */
+    }
+
+    .btn {
+      display: inline-block;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #111;
+      color: #fff;
+      transition: transform .06s ease, box-shadow .2s ease;
+      box-shadow: 0 6px 20px rgba(0,0,0,.12);
+    }
+    .btn:active { transform: translateY(1px) scale(0.99); }
+
+    .note {
+      margin-top: 14px;
+      font-size: 14px;
+      opacity: 0.75;
+    }
+
+    /* Confetti canvas */
+    canvas#confetti {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* Hidden secret message */
+    .secret {
+      margin-top: 14px;
+      font-size: 17px;
+      line-height: 1.5;
+      display: none;
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    .secret.show {
+      display: block;
+      animation: reveal .5s ease forwards;
+    }
+    @keyframes reveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Small footer */
+    .footer {
+      position: fixed;
+      bottom: env(safe-area-inset-bottom, 12px);
+      left: 0; right: 0;
+      text-align: center;
+      font-size: 12px;
+      opacity: 0.6;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+
+  <div class="wrap">
+    <div class="card">
+      <!-- Change the name/message here -->
+      <h1>Happy Birthday, Bella! 🎂💫</h1>
+      <div class="subtitle">A little something from me to you.</div>
+
+      <div class="hero">
+        <!-- OPTIONAL: Replace src with a real photo and set display:block in CSS above -->
+        <!-- <img src="https://your-photo-link.jpg" alt="Bella"> -->
+        <svg viewBox="0 0 200 200" width="140" height="140" aria-hidden="true">
+          <path d="M100 170s-60-35-60-80a35 35 0 0 1 60-23 35 35 0 0 1 60 23c0 45-60 80-60 80z" fill="#ff6ea0"/>
+        </svg>
+      </div>
+
+      <button id="surprise" class="btn">Tap me for a surprise ✨</button>
+
+      <div id="secret" class="secret">
+        <p>Every day with you is my favorite adventure. When we look at the moon, we’re under the same sky—“something.” 🌙</p>
+        <p>Can’t wait for more waves, more laughs, and more us. 💙</p>
+      </div>
+
+      <div class="note">Tip: Add this to your Home Screen for a cute app icon.</div>
+    </div>
+  </div>
+
+  <div class="footer">Made with 💛 by Pedro</div>
+
+  <!-- OPTIONAL audio: replace src and uncomment -->
+  <!-- <audio id="bgm" src="your-music-file.mp3" preload="auto"></audio> -->
+
+  <script>
+    // Confetti (lightweight, no libraries)
+    (function() {
+      const canvas = document.getElementById('confetti');
+      const ctx = canvas.getContext('2d');
+      let W, H, pieces;
+
+      function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      function random(min, max) { return Math.random() * (max - min) + min; }
+
+      function createPieces(n=180) {
+        pieces = new Array(n).fill().map(()=>({
+          x: random(0, W),
+          y: random(-H, 0),
+          r: random(4, 10),
+          d: random(1, 3),
+          tilt: random(-10, 10),
+          tiltAngle: 0,
+          tiltAngleInc: random(0.01, 0.03)
+        }));
+      }
+      createPieces();
+
+      function draw() {
+        ctx.clearRect(0,0,W,H);
+        pieces.forEach(p => {
+          ctx.beginPath();
+          ctx.ellipse(p.x, p.y, p.r, p.r * 0.6, p.tilt * Math.PI/180, 0, Math.PI * 2);
+          ctx.fillStyle = `hsl(${(p.x + p.y) % 360}, 80%, 60%)`;
+          ctx.fill();
+        });
+        update();
+        requestAnimationFrame(draw);
+      }
+
+      function update() {
+        pieces.forEach(p=>{
+          p.tiltAngle += p.tiltAngleInc;
+          p.y += (Math.cos(p.tiltAngle) + p.d + 0.5) * 0.8;
+          p.x += Math.sin(p.tiltAngle);
+          if (p.y > H + 10) { p.y = -10; p.x = random(0, W); }
+        });
+      }
+      draw();
+
+      // Surprise button: burst + reveal message + optional music
+      const btn = document.getElementById('surprise');
+      const secret = document.getElementById('secret');
+      btn.addEventListener('click', () => {
+        burst();
+        secret.classList.add('show');
+        btn.style.display = 'none';
+
+        // Optional music
+        // const audio = document.getElementById('bgm');
+        // if (audio) audio.play().catch(()=>{});
+      });
+
+      function burst() {
+        // add extra pieces briefly
+        const extra = new Array(200).fill().map(()=>({
+          x: W/2, y: H/3, r: random(3,8), d: random(1,3),
+          tilt: random(-10,10), tiltAngle: 0, tiltAngleInc: random(0.02,0.05)
+        }));
+        pieces.push(...extra);
+        setTimeout(()=> pieces.splice(-extra.length, extra.length), 1500);
+      }
+    })();
+  </script>
+</body>
+</html>
